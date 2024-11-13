@@ -254,7 +254,7 @@ namespace KonzolnaAplikacijaDump2
 
             foreach (KeyValuePair<int, Tuple<string, string, DateTime, Dictionary<string, Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>>>>> user in users.OrderBy(key => key.Value.Item2))
             {
-                Console.WriteLine($"{user.Key} - {user.Value.Item1} - {user.Value.Item2} - {user.Value.Item3}");
+                Console.WriteLine($"{user.Key} - {user.Value.Item1} - {user.Value.Item2} - {user.Value.Item3.ToString("yyyy-MM-dd")}");
             }
 
         }
@@ -268,6 +268,7 @@ namespace KonzolnaAplikacijaDump2
                     Console.WriteLine($"{user.Key} - {user.Value.Item1} - {user.Value.Item2} - {user.Value.Item3.Date.ToString("yyyy-MM-dd")}");
             }
         }
+
 
         static void ViewUsers()
         {
@@ -339,13 +340,109 @@ namespace KonzolnaAplikacijaDump2
 
         }
 
+        static int FindUserIdByName(string firstName, string lastName)
+        {
+            foreach (var user in users)
+            {
+                if (string.Equals(user.Value.Item1, firstName, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(user.Value.Item2, lastName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return user.Key;  // Return the ID immediately if we find a match
+                }
+            }
+            return -1;  // Return -1 if no match is found
+        }
+
+        static Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> ChooseAccount(int userID)
+        {
+            var user = users[userID];
+            var userAccounts = user.Item4; //dictionary with accounts
+            var accountOptions = new[] { "ziro", "tekuci", "prepaid" };
+
+
+            //choosing what account to work with
+            var accountChoice = "";
+
+            do
+            {
+                Console.WriteLine($"Opcije za racun su: {string.Join(", ", accountOptions)}");
+                Console.Write("Unesite izbor: ");
+                accountChoice = Console.ReadLine();
+
+            }while (!accountOptions.Contains(accountChoice));
+
+            var accountReturn = userAccounts[accountChoice];
+            Console.WriteLine($"Odabrani racun {accountChoice}, iznos: {accountReturn.Item1.ToString()}");
+
+            return accountReturn;
+        }
+
         static void AccountsMainFunction()
         {
-            var foundUser = false;
+            Console.Write("Unesite ime: ");
+            var chosenFirstName = Console.ReadLine().Trim();
+            Console.Write("Unesite prezime: ");
+            var chosenSurName = Console.ReadLine().Trim();
 
-            //uzmi logiku iz brisanje po imenu i prezimenu
-            
-     
+            var chosenUserId = FindUserIdByName(chosenFirstName, chosenSurName);
+
+            if (chosenUserId != -1)
+            {
+                var user = users[chosenUserId];
+                Console.WriteLine($"Rad na racunima-korisnik : {user.Item1} {user.Item2} s ID-jem {chosenUserId}");
+            }
+            else
+            {
+                Console.WriteLine($"Nije pronađen korisnik {chosenFirstName} {chosenSurName}");
+                return;
+            }
+
+            var workingAccount = ChooseAccount(chosenUserId);
+            Console.WriteLine("Uspjesno odabran racun, što želite dalje?");
+
+            var ongoing = true;
+            var choice = "";
+            List<string> choices = new List<string> { "1", "2", "3", "4" };
+
+            do
+            {
+                Console.WriteLine("1- Unos nove transakcije");
+                Console.WriteLine("2- Brisanje transakcije");
+                Console.WriteLine("3 - Uredivanje transakcije");
+                Console.WriteLine("4 - Pregled transakcije");
+                Console.WriteLine("5 - Financijsko izvjesce");
+                Console.WriteLine("6 - Za kraj rada");
+                Console.Write("Unesite svoj izbor za rad s racunima: ");
+                choice = Console.ReadLine().Trim();
+
+
+                if (choices.Contains(choice))
+                    ongoing = false;
+                else
+                    Console.WriteLine("Ne valjan unos, probaj opet!");
+
+            } while (ongoing);
+
+
+            switch(choice)
+            {
+                case "1":
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    break;
+                case "4":
+                    break;
+                case "5":
+                    break;
+                case "6":
+                    break;
+                default:
+                    Console.WriteLine("Nešto se dogosdilo, povratak");
+                    break;
+            }
+
 
         }
 
@@ -358,10 +455,10 @@ namespace KonzolnaAplikacijaDump2
             var uvodicDict = CreateAccountDictionary();
             var oreillyDict = CreateAccountDictionary();
 
-            users.Add(1, Tuple.Create("Mariela", "Uvodić", new DateTime(2004,03,09), uvodicDict));
+            users.Add(1, Tuple.Create("Mariela", "Uvodic", new DateTime(2004,03,09), uvodicDict));
             users.Add(2, Tuple.Create("Duje", "OReilly",new DateTime (2002, 11, 20),  oreillyDict));
             users.Add(3, Tuple.Create("Katy", "Perry", new DateTime(1980, 12, 3), CreateAccountDictionary()));
-            users.Add(4, Tuple.Create("Luka", "Modrić", new DateTime(1982, 10, 4), CreateAccountDictionary()));
+            users.Add(4, Tuple.Create("Luka", "Modric", new DateTime(1982, 10, 4), CreateAccountDictionary()));
 
 
 
@@ -384,9 +481,9 @@ namespace KonzolnaAplikacijaDump2
                         case ("1"):
                             UsersMainFunction();
                             break;
-                        //case ("2"):
-                        //    AccountsMainFunction();
-                        //    break;
+                        case ("2"):
+                            AccountsMainFunction();
+                            break;
                         case ("3"):
                             onGoing = false;
                             break;
