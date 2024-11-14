@@ -377,6 +377,205 @@ namespace KonzolnaAplikacijaDump2
             return accountReturn;
         }
 
+        //FUNCKIJE ZA RAD S RACUNIMA
+        //-----------------------------------------------------------------------//
+
+        static void AddNewTransactionHelper(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account, bool current = true)
+        {
+            var dateTimeOfTrans = DateTime.Now;
+            var dateParsed = false;
+            if (!current)
+            {
+                do
+                {
+                    Console.WriteLine("Unesite datum i vrijeme transakcije u formatu 'yyyy-MM-dd HH:mm'");
+                    var inputDatetime = Console.ReadLine();
+                    dateParsed = DateTime.TryParseExact(inputDatetime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTimeOfTrans);
+
+                } while (!dateParsed);
+                
+                Console.WriteLine($"Unesen datum i vrijeme {dateTimeOfTrans}");
+            }
+
+            //Input of remaining transaction information
+
+            //Input amount
+            var amount = 0.00d;
+            Console.Write("Unesite iznos transakcije: ");
+            var amountInput = Console.ReadLine();
+            var amountParse = double.TryParse(amountInput, out amount);
+            
+            while(!amountParse)
+            {
+                Console.WriteLine("Iznos unesen u krivom formatu, probajte opet: ");
+                amountInput = Console.ReadLine();
+                amountParse = double.TryParse(amountInput, out amount);
+            }
+
+            
+            amount = Math.Round(amount,2); //To ensure the amount is only two decimal points
+
+            Console.WriteLine($"Uspjesno unesen iznos: {amount}");
+
+            //Transaction description (opis transakcije)
+            var transDesc = "standardna transakcija";
+            Console.Write("Zelite li dodati svoj opis transakcije? (d/n)");
+            var transDescInput = Console.ReadLine().ToLower();
+
+            if( transDescInput == "d" )
+            {
+                Console.Write("Unesite svoj opis: ");
+                transDesc = Console.ReadLine();
+
+                if( transDesc.Length < 0)
+                {
+                    do
+                    {
+                        Console.Write("Unijeli ste prazan opis, unesite valjan opis: ");
+                        transDesc = Console.ReadLine();
+                    } while (transDesc.Length > 0);
+                }
+                
+            }
+
+            Console.WriteLine($"Uspjesno unesen opis: {transDesc}");
+
+            //Type (Prihod ili rashod)
+
+            var typesOptions = Tuple.Create("prihod", "rashod");
+            var typeDesc = "";
+            var category = "";
+            Console.WriteLine("Unesite tip transakcije");
+            Console.WriteLine("1-prihod");
+            Console.WriteLine("2-rashod");
+
+            var typeInput = Console.ReadLine();
+
+            if (typeInput != "1" && typeInput != "2")
+            {
+                do
+                {
+                    Console.Write("Niste unili valjan unos, probajte opet");
+                    typeInput = Console.ReadLine();
+                } while (typeInput != "1" || typeInput != "2");
+            }
+
+            switch(typeInput)
+            {
+                case "1":
+                    Console.WriteLine("Unijeli ste opciju 1- prihod");
+                    typeDesc = typesOptions.Item1;
+                    break;
+                case "2":
+                    Console.WriteLine("Unijeli ste opciju 2- rashod");
+                    typeDesc = typesOptions.Item2;
+                    break;
+                default:
+                    Console.WriteLine("Dogodila se greska");
+                    break;
+            }
+
+            category = CategoryInputFunction(typeDesc);
+
+
+            //Categories
+            string CategoryInputFunction(string type)
+            {
+                var categoriesIncome = new List<string> { "placa", "honorar", "poklon", "prijenos", "interes" };
+                var categoriesExpense = new List<string> { "hrana", "prijevoz", "sport", "odjeca", "zdravlje" };
+                var categoryInput = "";
+
+                switch (type)
+                {
+                    case "prihod":
+                        Console.WriteLine($"Opcije za prihod su: {String.Join(", ", categoriesIncome)}");
+                        categoryInput = Console.ReadLine().Trim().ToLower();
+
+                        while (!categoriesIncome.Contains(categoryInput))
+                        {
+                            Console.Write("Krivo uneseno, unesite odgovarajucu kategoriju: ");
+                            categoryInput = Console.ReadLine().Trim().ToLower();
+                        }
+                        break;
+                    case "rashod":
+                        Console.WriteLine($"Opcije za rashod su: {String.Join(", ", categoriesExpense)}");
+                        categoryInput = Console.ReadLine().Trim().ToLower();
+
+                        while (!categoriesExpense.Contains(categoryInput))
+                        {
+                            Console.Write("Krivo uneseno, unesite odgovarajucu kategoriju: ");
+                            categoryInput = Console.ReadLine().Trim().ToLower();
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("Doslo je do greske, ide default kategorija");
+                        break;
+                }
+
+                Console.WriteLine($"Uspjesno unesena katagorija {categoryInput}");
+                return categoryInput;
+            }
+
+            Console.WriteLine($"Nova transakcija: {amount}-{transDesc}-{typeDesc}-{category}-{dateTimeOfTrans}");
+            //Adding the values to the account now
+            var newTupleValue = createNewAccountTuple(amount, transDesc, typeDesc, category, dateTimeOfTrans, account);
+
+            account = newTupleValue;
+
+        }
+
+        static Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> createNewAccountTuple(double amount, string description, string type, string category, DateTime dateTimeExec, Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> accountTuple)
+        {
+            var newAmount = 0d;
+            if (type == "rashod")
+            {
+                newAmount = accountTuple.Item1 - amount;
+            }
+            else
+                newAmount = accountTuple.Item1 + amount;
+
+            var tupleValue = Tuple.Create(amount, description, type, category, dateTimeExec);
+
+            accountTuple.Item2.Add(accountTuple.Item2.Count, tupleValue);
+
+            var newAccountTuple = Tuple.Create(newAmount, accountTuple.Item2);
+
+            return newAccountTuple;
+        }
+
+        static void AddNewTransactionMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account) //takes the account we are working on
+        {
+            var choice = "";
+
+            do
+            {
+                Console.WriteLine("Odabrali ste unos nove transakcije, kakvu transakciju zelite unit: ");
+                Console.WriteLine("a) trenutno izvrsena transakcija");
+                Console.WriteLine("b) ranije izvrsena transakcija (potrebno upisati datum i vrijeme)");
+
+                choice = Console.ReadLine();
+
+            } while (choice != "a" && choice != "b");
+
+            switch (choice)
+            {
+                case "a":
+                    Console.WriteLine("Odabrali ste dodati trenutno izvrsenu transakciju");
+                    AddNewTransactionHelper(account);
+                    break;
+                case "b":
+                    AddNewTransactionHelper(account, false);
+                    break;
+            }
+
+            Console.WriteLine("Uspjesno dodana transakcija, slijedi ispis svih transakcija");
+
+            foreach (var kvp in account.Item2)
+            {
+                Console.WriteLine($"{kvp.Key}-{kvp.Value.Item1}-{kvp.Value.Item2}-{kvp.Value.Item3}-{kvp.Value.Item4}-{kvp.Value.Item5}");
+            }
+        }
+
         static void AccountsMainFunction()
         {
             Console.Write("Unesite ime: ");
@@ -427,6 +626,7 @@ namespace KonzolnaAplikacijaDump2
             switch(choice)
             {
                 case "1":
+                    AddNewTransactionMain(workingAccount);
                     break;
                 case "2":
                     break;
