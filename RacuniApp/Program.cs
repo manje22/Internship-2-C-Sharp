@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -576,6 +577,99 @@ namespace KonzolnaAplikacijaDump2
             }
         }
 
+        static void RemoveTransactionByID(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            var accountDictionary = account.Item2;
+
+            var transactionId = int.MinValue;
+
+            do
+            {
+                Console.Write("Unesite id transakcije: ");
+                var input = Console.ReadLine();
+
+                if(int.TryParse(input, out transactionId))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Uneseni id ne postoji!");
+                }
+            } while (true);
+
+            var chosenTransaction = accountDictionary[transactionId];
+
+            Console.WriteLine($"Unesen id: {transactionId}");
+            Console.WriteLine("Odabrana transakcija: ");
+            Console.WriteLine(String.Join(" - ", chosenTransaction.Item1, chosenTransaction.Item2, chosenTransaction.Item3, chosenTransaction.Item4, chosenTransaction.Item5));
+
+            Console.WriteLine("Jeste sigurni da zelite izbrisati odabranu transakciju? (d/n)");
+            var confirmation = "";
+
+            do
+            {
+                Console.WriteLine("Unesite odabir: ");
+                confirmation = Console.ReadLine().Trim().ToLower();
+            } while (confirmation == "d" && confirmation == "n");
+           
+            if(confirmation == "d")
+            {
+                Console.WriteLine("Brise se transakcija");
+                accountDictionary.Remove(transactionId);
+                Console.WriteLine("Transakcja je uspjesno obrisana");
+            }
+            else
+                Console.WriteLine("Abortirano brisanje transakcije");
+        }
+        
+
+        static void RemoveTransactionMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            Console.WriteLine("Odabrali ste opciju brisanja transakcije-što želite brisati");
+            Console.WriteLine("a) po id-u");
+            Console.WriteLine("b) ispod unesenog iznosa");
+            Console.WriteLine("c) iznad unesenog iznosa ");
+            Console.WriteLine("d) svi prihodi");
+            Console.WriteLine("e) svi rashodi");
+            Console.WriteLine("f) sve transakcije za odabranu kategoriju");
+
+            var options = new[] { "a", "b", "c", "d", "e", "f"};
+
+            Console.Write("Unesite izbor: ");
+            var choice = Console.ReadLine().Trim().ToLower();
+
+            if (!options.Contains(choice))
+            {
+                do
+                {
+                    Console.WriteLine("Niste unili valjan izbor, probajte opet: ");
+                    choice = Console.ReadLine().Trim().ToLower();
+
+                } while (!options.Contains(choice));
+            }
+
+            Console.WriteLine($"Odabrali ste opciju {choice}");
+
+            switch(choice)
+            {
+                case "a":
+                    RemoveTransactionByID(account);
+                    break;
+                case "b":
+                    break;
+                case "c":
+                    break;
+                case "d":
+                    break;
+                case "e":
+                    break;
+                case "f":
+                    break;
+            }
+
+        }
+
         static void AccountsMainFunction()
         {
             Console.Write("Unesite ime: ");
@@ -629,6 +723,7 @@ namespace KonzolnaAplikacijaDump2
                     AddNewTransactionMain(workingAccount);
                     break;
                 case "2":
+                    RemoveTransaction(workingAccount);
                     break;
                 case "3":
                     break;
