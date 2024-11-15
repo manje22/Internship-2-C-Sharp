@@ -1211,6 +1211,56 @@ namespace KonzolnaAplikacijaDump2
 
         }
 
+        static void CurrentState(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            var incomeSum = 0d;
+            var expenseSum = 0d;
+            Console.WriteLine("Odabrali ste izvjesce o tremutnom stanju racunala");
+            Console.WriteLine($"Iznos racuna:{account.Item1}");
+
+            foreach (var item in account.Item2.Values)
+            {
+                if (item.Item3 == "prihod")
+                    incomeSum += item.Item1;
+                else
+                    expenseSum += item.Item1;
+            }
+
+            Console.WriteLine($"Zbroj prihoda: {Math.Round(incomeSum,2)}");
+            Console.WriteLine($"Zbroj rashoda: {Math.Round(expenseSum,2)}");
+
+            if (account.Item1 < 0)
+                Console.WriteLine("OPREZ: Ovaj racun je u minusu");
+        }
+
+
+        static void FinancialReportMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            Console.WriteLine("Odabrali ste financijsko izvjesce, opcije: ");
+            Console.WriteLine("a) trenutno stanje računa");
+            Console.WriteLine("b) broj ukupnih transakcija");
+            Console.WriteLine("c) ukupan iznos prihoda i rashoda za odabrani mjesec i godinu");
+            Console.WriteLine("d) postotak udjela rashoda za odabranu kategoriju");
+            Console.WriteLine("e) prosječni iznos transakcije za odabrani mjesec i godinu");
+            Console.WriteLine("f) prosječni iznos transakcije za odabranu kategoriju");
+
+            var options = new[] { "a", "b", "c", "d", "e", "f" };
+            var choice = "";
+
+            do
+            {
+                Console.Write("Unesite izbor: ");
+                choice = Console.ReadLine().Trim().ToLower();
+            } while (!options.Contains(choice));
+
+            switch (choice)
+            {
+                case "a":
+                    CurrentState(account);
+                    break;
+            }
+        }
+
         static void AccountsMainFunction()
         {
             Console.Write("Unesite ime: ");
@@ -1273,6 +1323,7 @@ namespace KonzolnaAplikacijaDump2
                     ViewAccountsMain(workingAccount);
                     break;
                 case "5":
+                    FinancialReportMain(workingAccount);
                     break;
                 case "6":
                     break;
