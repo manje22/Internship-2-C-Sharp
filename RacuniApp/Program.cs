@@ -1083,6 +1083,27 @@ namespace KonzolnaAplikacijaDump2
 
         }
 
+        static void PrintByCategory(Dictionary<int, Tuple<double, string, string, string, DateTime>> transactions)
+        {
+            Console.WriteLine("Odabrali ste ispis po kategoriji");
+            var categoriesIncome = new List<string> { "placa", "honorar", "poklon", "prijenos", "interes" };
+            var categoriesExpense = new List<string> { "hrana", "prijevoz", "sport", "odjeca", "zdravlje" };
+
+            var category = "";
+
+            do
+            {
+                Console.Write("Unesite kategoriju: ");
+                category = Console.ReadLine().ToLower().Trim();
+            }while(!categoriesIncome.Contains(category) && !categoriesExpense.Contains(category));
+
+            foreach (var item in transactions)
+            {
+                if(item.Value.Item4 == category)
+                    Console.WriteLine(string.Join(" - ", item.Value.Item3, item.Value.Item1, item.Value.Item2, item.Value.Item4, item.Value.Item5));
+            }
+        }
+
         static void ViewAccountsMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
         {
             var availableChoices = new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
@@ -1130,6 +1151,9 @@ namespace KonzolnaAplikacijaDump2
                     break;
                 case "h":
                     PrintByType(account.Item2, "rashod");
+                    break;
+                case "i":
+                    PrintByCategory(account.Item2);
                     break;
             }
 
