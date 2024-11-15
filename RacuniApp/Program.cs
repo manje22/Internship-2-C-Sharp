@@ -1022,6 +1022,66 @@ namespace KonzolnaAplikacijaDump2
                 Console.WriteLine("Otkazano uredivanje");
         }
         
+        static void PrintAllTransactions(Dictionary<int, Tuple<double, string, string, string, DateTime>> transactions)
+        {
+            
+            foreach (var item in transactions)
+            {
+                Console.WriteLine(string.Join(" - ", item.Value.Item3, item.Value.Item1, item.Value.Item2, item.Value.Item4, item.Value.Item5));
+            }
+        }
+
+        static void PrintSortByAmount(Dictionary<int, Tuple<double, string, string, string, DateTime>> transactions, string order = "decreasing")
+        {
+            var ordered = transactions.OrderByDescending(t => t.Value.Item1);
+
+            if (order == "increasing")
+            {
+                ordered = transactions.OrderBy(t => t.Value.Item1);
+            }
+
+            foreach (var item in ordered)
+            {
+                Console.WriteLine(string.Join(" - ", item.Value.Item3, item.Value.Item1, item.Value.Item2, item.Value.Item4, item.Value.Item5));
+            }
+        }
+
+        static void ViewAccountsMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            var availableChoices = new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
+            var choice = "";
+            Console.WriteLine("Odabrali ste pregled transakcija, opcije su: ");
+            Console.WriteLine("a) sve transakcije kako su spremljene");
+            Console.WriteLine("b) sve transakcije sortirane po iznosu uzlazno");
+            Console.WriteLine("c) sve transakcije sortirane po iznosu silazno");
+            Console.WriteLine("d) sve transakcije sortirane po opisu abecedno");
+            Console.WriteLine("e) sve transakcije sortirane po datumu uzlazno");
+            Console.WriteLine("f) sve transakcije sortirane po datumu silazno");
+            Console.WriteLine("g) svi prihodi");
+            Console.WriteLine("h) svi rashodi");
+            Console.WriteLine("i) sve transakcije za odabranu kategoriju");
+            Console.WriteLine("j) sve transakcije za odabrani tip i kategoriju");
+
+            do
+            {
+                Console.Write("Unesite opciju: ");
+                choice = Console.ReadLine().Trim().ToLower();
+            } while (!availableChoices.Contains(choice));
+            
+            switch (choice)
+            {
+                case "a":
+                    PrintAllTransactions(account.Item2);
+                    break;
+                case "b":
+                    PrintSortByAmount(account.Item2, "increasing");
+                    break;
+                case "c":
+                    PrintSortByAmount(account.Item2);
+                    break;
+            }
+
+        }
 
         static void AccountsMainFunction()
         {
@@ -1082,6 +1142,7 @@ namespace KonzolnaAplikacijaDump2
                     EditTransactionMain(workingAccount);
                     break;
                 case "4":
+                    ViewAccountsMain(workingAccount);
                     break;
                 case "5":
                     break;
