@@ -504,7 +504,7 @@ namespace KonzolnaAplikacijaDump2
 
             Console.WriteLine($"Nova transakcija: {amount}-{transDesc}-{typeDesc}-{category}-{dateTimeOfTrans}");
             //Adding the values to the account now
-            var newTupleValue = createNewAccountTuple(amount, transDesc, typeDesc, category, dateTimeOfTrans, account);
+            var newTupleValue = createNewAccountTuple(Math.Round(amount,2), transDesc, typeDesc, category, dateTimeOfTrans, account);
 
             account = newTupleValue;
 
@@ -569,7 +569,7 @@ namespace KonzolnaAplikacijaDump2
 
             accountTuple.Item2.Add(key, tupleValue);
 
-            var newAccountTuple = Tuple.Create(newAmount, accountTuple.Item2);
+            var newAccountTuple = Tuple.Create(Math .Round(newAmount), accountTuple.Item2);
 
             return newAccountTuple;
         }
@@ -1233,6 +1233,172 @@ namespace KonzolnaAplikacijaDump2
                 Console.WriteLine("OPREZ: Ovaj racun je u minusu");
         }
 
+        static void IncomeExpenseForMonth(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            var incomeSum = 0d;
+            var expenseSum = 0d;
+
+            Console.WriteLine("Odabrali ste izvjesce prihoda i rashoda prema mjesecu i godini");
+            var month = DateTime.Now.Month;
+            var year = DateTime.Now.Year;
+
+            var yearInput = "";
+            var monthInput = "";
+            var yearParse = false;
+            var monthParse = false;
+
+            do
+            {
+                Console.WriteLine("Unesite odabranu godinu: ");
+                yearInput = Console.ReadLine().Trim().ToLower();
+                yearParse = int.TryParse(yearInput, out year);
+
+            } while (year < 2000 && year > 2024 && !yearParse);
+
+            Console.WriteLine($"Uspjesno odabrana godina {year}");
+
+            do
+            {
+                Console.WriteLine("Unesite odabrani mjesec: ");
+                monthInput = Console.ReadLine().Trim().ToLower();
+                monthParse = int.TryParse(monthInput, out month);
+
+            } while (month < 0 && month > 13 && !monthParse);
+
+            Console.WriteLine($"Uspjesno odabran mjesec {month}");
+
+            foreach(var trans in account.Item2)
+            {
+                if(trans.Value.Item5.Month == month && trans.Value.Item5.Year == year)
+                {
+                    var type = trans.Value.Item3;
+
+                    switch(type)
+                    {
+                        case "prihod":
+                            incomeSum += trans.Value.Item1;
+                            break;
+                        case "rashod":
+                            expenseSum += trans.Value.Item1;
+                            break;
+                        default:
+                            Console.WriteLine("Greska");
+                            break;
+                    }
+                }
+            }
+
+            Console.WriteLine($"Za mjesec {month} i godina {year}: ");
+            Console.WriteLine($"Ukupan iznos rashoda: {Math.Round(expenseSum,2)}");
+            Console.WriteLine($"Ukupan iznos prihoda: {Math.Round(incomeSum),2}");
+
+        }
+
+        static void PercentCategory(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            Console.WriteLine("Odabrali ste izvjesce o postotku udjela rashoda za odabranu kateogriju");
+            var categoriesIncome = new List<string> { "placa", "honorar", "poklon", "prijenos", "interes" };
+            var categoriesExpense = new List<string> { "hrana", "prijevoz", "sport", "odjeca", "zdravlje" };
+
+            var category = "";
+
+            do
+            {
+                Console.Write("Unesite kategoriju: ");
+                category = Console.ReadLine().ToLower().Trim();
+            } while (!categoriesIncome.Contains(category) && !categoriesExpense.Contains(category));
+
+            var expenseSum = 0d;
+            var categorySum = 0d;
+            foreach(var item in account.Item2)
+            {
+                if (item.Value.Item3 == "rashod")
+                {
+                    expenseSum += item.Value.Item1;
+
+                    if(item.Value.Item4 == category)
+                        categorySum += item.Value.Item1;
+                }
+            }
+
+            var percentage = Math.Round((categorySum/ expenseSum)*100,2);
+            Console.WriteLine($"Postotak potrošeno na kategoriju {category}: {percentage}%");
+        }
+
+        static void AvgMonth(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            Console.WriteLine("Odabrali ste prosjecni iznos transakcije za odabrani mjesec i godinu");
+
+            var month = DateTime.Now.Month;
+            var year = DateTime.Now.Year;
+
+            var transSum = 0d;
+            var counter = 0;
+
+            var yearInput = "";
+            var monthInput = "";
+            var yearParse = false;
+            var monthParse = false;
+
+            do
+            {
+                Console.WriteLine("Unesite odabranu godinu: ");
+                yearInput = Console.ReadLine().Trim().ToLower();
+                yearParse = int.TryParse(yearInput, out year);
+
+            } while (year < 2000 && year > 2024 && !yearParse);
+
+            Console.WriteLine($"Uspjesno odabrana godina {year}");
+
+            do
+            {
+                Console.WriteLine("Unesite odabrani mjesec: ");
+                monthInput = Console.ReadLine().Trim().ToLower();
+                monthParse = int.TryParse(monthInput, out month);
+
+            } while (month < 0 && month > 13 && !monthParse);
+
+            foreach (var trans in account.Item2)
+            {
+                if (trans.Value.Item5.Month == month && trans.Value.Item5.Year == year)
+                {
+                    counter++;
+                    transSum += trans.Value.Item1;
+                }
+            }
+
+            Console.WriteLine($"Prosjecan iznos transakcije za {counter} transakcije tijekom {month}.{year}: {Math.Round((transSum/ counter), 2)}");
+
+        }
+
+        static void AvgCategory(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
+        {
+            Console.WriteLine("Odabrali ste izvjesce o prosjecnom iznosu transakcije za odabranu kategoriju");
+            var categoriesIncome = new List<string> { "placa", "honorar", "poklon", "prijenos", "interes" };
+            var categoriesExpense = new List<string> { "hrana", "prijevoz", "sport", "odjeca", "zdravlje" };
+
+            var category = "";
+            var counter = 0;
+
+            do
+            {
+                Console.Write("Unesite kategoriju: ");
+                category = Console.ReadLine().ToLower().Trim();
+            } while (!categoriesIncome.Contains(category) && !categoriesExpense.Contains(category));
+
+            var categorySum = 0d;
+
+            foreach (var trans in account.Item2)
+            {
+                if (trans.Value.Item4 == category)
+                {
+                    counter++;
+                    categorySum += trans.Value.Item1;
+                }
+            }
+
+            Console.WriteLine($"Prosjecan iznos transakcije za {counter} transakcije kategorije {category}: {Math.Round((categorySum / counter), 2)}");
+        }
 
         static void FinancialReportMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
         {
@@ -1257,6 +1423,24 @@ namespace KonzolnaAplikacijaDump2
             {
                 case "a":
                     CurrentState(account);
+                    break;
+                case "b":
+                    Console.WriteLine($"Broj ukupnih transakcija: {account.Item2.Values.Count}");
+                    break;
+                case "c":
+                    IncomeExpenseForMonth(account);
+                    break;
+                case "d":
+                    PercentCategory(account);
+                    break;
+                case "e":
+                    AvgMonth(account);
+                    break;
+                case "f":
+                    AvgCategory(account);
+                    break;
+                default:
+                    Console.WriteLine("greska");
                     break;
             }
         }
@@ -1367,6 +1551,9 @@ namespace KonzolnaAplikacijaDump2
             users[1].Item4["ziro"] = createNewAccountTuple(200, "cetvrti ziro unos", "prihod", "honorar", DateTime.Now, users[1].Item4["ziro"]);
             users[1].Item4["ziro"] = createNewAccountTuple(5, "prvo ziro placanje", "rashod", "hrana", DateTime.Now, users[1].Item4["ziro"]);
             users[1].Item4["ziro"] = createNewAccountTuple(2.22, "drugo ziro placanje", "rashod", "odjeca", DateTime.Now, users[1].Item4["ziro"]);
+            users[1].Item4["ziro"] = createNewAccountTuple(5, "ziro placanje na taj datum", "rashod", "hrana", new DateTime(2024, 11, 14, 14, 30, 0), users[1].Item4["ziro"]);
+            users[1].Item4["ziro"] = createNewAccountTuple(2.22, "drugo ziro placanje na taj datum", "rashod", "odjeca", new DateTime(2024, 11, 10, 11, 23, 0), users[1].Item4["ziro"]);
+
 
             users[1].Item4["tekuci"] = createNewAccountTuple(300, "prvi tekuci unos", "prihod", "prijenos", DateTime.Now, users[1].Item4["tekuci"]);
             users[1].Item4["tekuci"] = createNewAccountTuple(150, "drugi tekuci unos", "prihod", "placa", DateTime.Now, users[1].Item4["tekuci"]);
