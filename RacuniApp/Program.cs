@@ -1056,6 +1056,21 @@ namespace KonzolnaAplikacijaDump2
             }
         }
 
+        static void PrintSortedByDate(Dictionary<int, Tuple<double, string, string, string, DateTime>> transactions, string order = "increasing")
+        {
+            var ordered = transactions.OrderBy(t => t.Value.Item5);
+
+            if (order == "decreasing")
+            {
+                ordered = transactions.OrderByDescending(t => t.Value.Item5);
+            }
+
+            foreach (var item in ordered)
+            {
+                Console.WriteLine(string.Join(" - ", item.Value.Item3, item.Value.Item1, item.Value.Item2, item.Value.Item4, item.Value.Item5));
+            }
+        }
+
         static void ViewAccountsMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
         {
             var availableChoices = new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
@@ -1091,6 +1106,12 @@ namespace KonzolnaAplikacijaDump2
                     break;
                 case "d":
                     PrintSortByDescription(account.Item2);
+                    break;
+                case "e":
+                    PrintSortedByDate(account.Item2);
+                    break;
+                case "f":
+                    PrintSortedByDate(account.Item2, "decreasing");
                     break;
             }
 
@@ -1206,6 +1227,10 @@ namespace KonzolnaAplikacijaDump2
             users[1].Item4["tekuci"] = createNewAccountTuple(150, "drugi tekuci unos", "prihod", "placa", DateTime.Now, users[1].Item4["tekuci"]);
 
             users[1].Item4["prepaid"] = createNewAccountTuple(150, "prvi prepaid unos", "rashod", "odjeca", DateTime.Now, users[1].Item4["prepaid"]);
+
+            users[2].Item4["ziro"] = createNewAccountTuple(200, "cetvrti ziro unos", "prihod", "honorar", new DateTime(2024, 11, 14, 14, 30, 0), users[2].Item4["ziro"]);
+            users[2].Item4["ziro"] = createNewAccountTuple(5, "prvo ziro placanje", "rashod", "interes", new DateTime(2024, 11, 16, 15, 30, 0), users[2].Item4["ziro"]);
+            users[2].Item4["ziro"] = createNewAccountTuple(2.22, "drugo ziro placanje", "rashod", "honorar", new DateTime(2024, 11, 10, 11, 23, 0), users[2].Item4["ziro"]);
 
             users[3].Item4["tekuci"] = createNewAccountTuple(150, "prvi prepaid unos", "rashod", "odjeca", DateTime.Now, users[3].Item4["tekuci"]);
             users[4].Item4["tekuci"] = createNewAccountTuple(50, "prvi prepaid unos", "rashod", "odjeca", DateTime.Now, users[4].Item4["tekuci"]);
