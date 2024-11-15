@@ -1104,6 +1104,53 @@ namespace KonzolnaAplikacijaDump2
             }
         }
 
+        static void PrintByCategoryAndType(Dictionary<int, Tuple<double, string, string, string, DateTime>> transactions)
+        {
+            var categoriesIncome = new List<string> { "placa", "honorar", "poklon", "prijenos", "interes" };
+            var categoriesExpense = new List<string> { "hrana", "prijevoz", "sport", "odjeca", "zdravlje" };
+
+            var type = "";
+            var category = "";
+
+            Console.WriteLine("Odabrali ste ispis po kategoriji i tipu");
+
+            do
+            {
+                Console.Write("Unesite tip transakcije (prihod/rashod)");
+                type = Console.ReadLine().Trim().ToLower();
+            } while (type != "prihod" && type != "rashod");
+
+            if (type == "prihod")
+            {
+                Console.WriteLine($"Opcije za kategoriju su: {string.Join(", ", categoriesIncome)}");
+                do
+                {
+                    Console.Write("Unesite kategoriju: ");
+                    category = Console.ReadLine().ToLower().Trim();
+                } while (!categoriesIncome.Contains(category));
+
+            }
+            else
+            {
+                Console.WriteLine($"Opcije za kategoriju su: {string.Join(", ", categoriesExpense)}");
+
+                do
+                {
+                    Console.Write("Unesite kategoriju: ");
+                    category = Console.ReadLine().ToLower().Trim();
+                } while (!categoriesExpense.Contains(category));
+            }
+
+            Console.WriteLine($"Odabran tip {type}, kategorija {category}");
+
+            foreach (var item in transactions)
+            {
+                if (item.Value.Item4 == category)
+                    Console.WriteLine(string.Join(" - ", item.Value.Item3, item.Value.Item1, item.Value.Item2, item.Value.Item4, item.Value.Item5));
+            }
+
+        }
+
         static void ViewAccountsMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
         {
             var availableChoices = new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
@@ -1154,6 +1201,11 @@ namespace KonzolnaAplikacijaDump2
                     break;
                 case "i":
                     PrintByCategory(account.Item2);
+                    break;
+                case "j":
+                    PrintByCategoryAndType(account.Item2);
+                    break;
+                default:
                     break;
             }
 
@@ -1262,8 +1314,8 @@ namespace KonzolnaAplikacijaDump2
             users[1].Item4["ziro"] = createNewAccountTuple(50, "drugi ziro unos", "prihod", "prijenos", DateTime.Now, users[1].Item4["ziro"]);
             users[1].Item4["ziro"] = createNewAccountTuple(25, "treci ziro unos", "prihod", "interes", DateTime.Now, users[1].Item4["ziro"]);
             users[1].Item4["ziro"] = createNewAccountTuple(200, "cetvrti ziro unos", "prihod", "honorar", DateTime.Now, users[1].Item4["ziro"]);
-            users[1].Item4["ziro"] = createNewAccountTuple(5, "prvo ziro placanje", "rashod", "interes", DateTime.Now, users[1].Item4["ziro"]);
-            users[1].Item4["ziro"] = createNewAccountTuple(2.22, "drugo ziro placanje", "rashod", "honorar", DateTime.Now, users[1].Item4["ziro"]);
+            users[1].Item4["ziro"] = createNewAccountTuple(5, "prvo ziro placanje", "rashod", "hrana", DateTime.Now, users[1].Item4["ziro"]);
+            users[1].Item4["ziro"] = createNewAccountTuple(2.22, "drugo ziro placanje", "rashod", "odjeca", DateTime.Now, users[1].Item4["ziro"]);
 
             users[1].Item4["tekuci"] = createNewAccountTuple(300, "prvi tekuci unos", "prihod", "prijenos", DateTime.Now, users[1].Item4["tekuci"]);
             users[1].Item4["tekuci"] = createNewAccountTuple(150, "drugi tekuci unos", "prihod", "placa", DateTime.Now, users[1].Item4["tekuci"]);
