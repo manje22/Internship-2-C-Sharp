@@ -1046,6 +1046,16 @@ namespace KonzolnaAplikacijaDump2
             }
         }
 
+        static void PrintSortByDescription(Dictionary<int, Tuple<double, string, string, string, DateTime>> transactions)
+        {
+            var ordered = transactions.OrderBy(t => t.Value.Item2);
+
+            foreach (var item in ordered)
+            {
+                Console.WriteLine(string.Join(" - ", item.Value.Item3, item.Value.Item1, item.Value.Item2, item.Value.Item4, item.Value.Item5));
+            }
+        }
+
         static void ViewAccountsMain(Tuple<double, Dictionary<int, Tuple<double, string, string, string, DateTime>>> account)
         {
             var availableChoices = new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
@@ -1078,6 +1088,9 @@ namespace KonzolnaAplikacijaDump2
                     break;
                 case "c":
                     PrintSortByAmount(account.Item2);
+                    break;
+                case "d":
+                    PrintSortByDescription(account.Item2);
                     break;
             }
 
